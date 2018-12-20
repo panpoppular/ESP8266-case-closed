@@ -80,6 +80,7 @@ void openDoor(int dn){
   HTTPClient http;
   http.begin(BASE_URL+"embedded/open/d"+c);
   //Serial.println(BASE_URL+"embedded/open/d"+c);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   http.addHeader("Content-length","0");
   int httpCode = http.POST("");
   if (httpCode != 200){
@@ -94,7 +95,7 @@ void closeDoor(int dn){
   char c = '0'+(dn);
   HTTPClient http;
   http.begin(BASE_URL+"embedded/close/d"+c);
-  //http.addHeader("Content-Type","application/x-www-form-urlencoded");
+  http.addHeader("Content-Type","application/x-www-form-urlencoded");
   http.addHeader("Content-length","0");
   int httpCode = http.POST("");
   if (httpCode != 200){
