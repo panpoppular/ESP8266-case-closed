@@ -40,11 +40,16 @@ void sendrequest(){
   DynamicJsonBuffer jsonBuffer;
   HTTPClient http;  //Declare an object of class HTTPClient
   http.begin(BASE_URL+"embedded");  //Specify request destination
+  Serial1.print("GET ");
+  Serial1.println(BASE_URL+"embedded");
   int httpCode = http.GET();                                                                  //Send the request
   if (httpCode > 0) {
     //Serial.println(httpCode);
-    if(httpCode != 200){return;}
+    if(httpCode != 200){
+      Serial1.println("GET ERROR "+http.errorToString(httpCode));
+      return;}
     String payload = http.getString();   //Get the request response payload
+    Serial1.println("GET Complete");
     //Serial.println(payload);                     //Print the response payload
     http.end();
     JsonObject& root = jsonBuffer.parseObject(payload);
@@ -71,6 +76,7 @@ void sendrequest(){
       }
       //Serial.println(sensorWeb[i]);
     }
+    Serial1.println("PRASE DONE");
   }
 }
 
@@ -80,14 +86,24 @@ void openDoor(int dn){
   HTTPClient http;
   http.begin(BASE_URL+"embedded/open/d"+c);
   //Serial.println(BASE_URL+"embedded/open/d"+c);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  /*http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   http.addHeader("Content-length","0");
-  int httpCode = http.POST("");
+  Serial1.print("POST");
+  Serial1.println(BASE_URL+"embedded/open/d"+c);
+  int httpCode = http.POST("");*/
+
+  Serial1.print("GET");
+  Serial1.println(BASE_URL+"embedded/open/d"+c);
+  int httpCode = http.GET();
+  Serial1.println("GETTING");
+  
   if (httpCode != 200){
-    //Serial.print(httpCode);
+    Serial1.printf("ERROR %d\n",httpCode);
+    Serial1.println(http.errorToString(httpCode));
     Serial.printf("J%d",dn);
   }
   Serial.printf("O%d",dn);
+  Serial1.printf("OPEN %d/n",dn);
   //http.end();
   
 }
@@ -95,23 +111,38 @@ void closeDoor(int dn){
   char c = '0'+(dn);
   HTTPClient http;
   http.begin(BASE_URL+"embedded/close/d"+c);
-  http.addHeader("Content-Type","application/x-www-form-urlencoded");
+  /*http.addHeader("Content-Type","application/x-www-form-urlencoded");
   http.addHeader("Content-length","0");
+  Serial1.print("POST");
+  Serial1.println(BASE_URL+"embedded/close/d"+c);
   int httpCode = http.POST("");
+  Serial1.println("POSTING");*/
+
+  Serial1.print("GET");
+  Serial1.println(BASE_URL+"embedded/close/d"+c);
+  int httpCode = http.GET();
+  Serial1.println("GETTING");
+  
   if (httpCode != 200){
-    //Serial.printf("ERROR %d",httpCode);
+    Serial1.printf("ERROR %d\n",httpCode);
+    Serial1.println(http.errorToString(httpCode));
     Serial.printf("J%d",dn);
   }
   Serial.printf("C%d",dn);
+  Serial1.printf("CLOSE %d/n",dn);
   //http.end();
 }
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  Serial1.begin(115200);
+  Serial1.println("PREInitializing");
+  //Serial.setDebugOutput(true);
   Serial.println("Please connect to STM32 in 5 second");
   //Serial.swap();
   delay(5000);
   Serial.print("I0N0I0T0");
+  Serial1.println("Initializing");
 
    WiFi.begin(ssid, password);
    while (WiFi.status() != WL_CONNECTED) 
@@ -120,11 +151,11 @@ void setup() {
       Serial.printf("W%d",WiFi.status());
    }
 
-   /*Serial.println("WiFi connected");  
-   Serial.println("IP address: ");
-   Serial.println(WiFi.localIP());
-  Serial.print("MAC address: ");
-  Serial.println(WiFi.macAddress());*/
+   Serial1.println("WiFi connected");  
+   Serial1.println("IP address: ");
+   Serial1.println(WiFi.localIP());
+   Serial1.print("MAC address: ");
+   Serial1.println(WiFi.macAddress());
 
 
 
@@ -154,8 +185,8 @@ void loop() {
   // put your main code here, to run repeatedly:
  if (Serial.available() > 7){
   Serial.readBytes(inbyte, 8);
-  //Serial.printf("Got data\n");
-  //Serial.printf("%d %d %d %d\n",inbyte[0],inbyte[1],inbyte[2],inbyte[3]);  
+  Serial1.printf("Got data\n");
+  Serial1.printf("%d %d %d %d\n",inbyte[0],inbyte[1],inbyte[2],inbyte[3]);  
   memcpy(sensorStatus,inbyte,sizeof(inbyte));
   //Serial.printf("%d %d %d %d\n",sensorStatus[0],sensorStatus[1],sensorStatus[2],sensorStatus[3]);
   for (int i = 0; i < 8; i++) {
@@ -172,7 +203,6 @@ void loop() {
  else{
   Serial.printf("N0");
  }
- delay(500);
  sendrequest();
- delay(1000);
+ delay(500);
 }
