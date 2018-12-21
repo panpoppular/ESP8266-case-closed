@@ -138,9 +138,9 @@ void setup() {
   Serial1.begin(115200);
   Serial1.println("PREInitializing");
   //Serial.setDebugOutput(true);
-  Serial.println("Please connect to STM32 in 5 second");
+  Serial.println("Please connect to STM32 in 15 second");
   //Serial.swap();
-  delay(5000);
+  delay(15000);
   Serial.print("I0N0I0T0");
   Serial1.println("Initializing");
 
@@ -204,5 +204,10 @@ void loop() {
   Serial.printf("N0");
  }
  sendrequest();
- delay(500);
+ delay(250);
+ while(Serial.available()){
+  char getData = Serial.read();
+ }
+ delay(250);
+
 }
